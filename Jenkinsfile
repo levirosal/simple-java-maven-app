@@ -1,30 +1,28 @@
 pipeline {
     agent any
+    tools {
+        maven 'maven_3_5_0'
+    }
+
     stages {
-        stage('Stage 1') {
+        stage('Build') {
             steps {
-                echo 'Hello world!'
+                sh 'mvn -B -DskipTests clean package'
             }
         }
-        stage('Stage 2') {
+        stage('Test') {
             steps {
-                sh 'pwd'
+                sh 'mvn test'
+            }
+            post {
+                always {
+                    junit 'target/surefire-reports/*.xml'
+                }
             }
         }
-        stage('Stage 3') {
+        stage('Deliver') {
             steps {
-                sh 'mkdir levi-folder'
-                sh 'touch hello.txt'
-            }
-        }
-        stage('Stage 4') {
-            steps {
-                sh 'sleep 20'
-            }
-        }
-        stage('Stage 5') {
-            steps {
-                sh 'ls -lh'
+                sh './jenkins/scripts/deliver.sh'
             }
         }
     }
